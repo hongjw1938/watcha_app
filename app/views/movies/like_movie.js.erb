@@ -1,0 +1,20 @@
+
+
+if(<%= @like.frozen? %>){
+// 좋아요가 취소된 경우
+// 좋아요 취소버튼 -> 좋아요 버튼
+
+
+alert("좋아요가 취소되었습니다.");
+$('.like').text("좋아요 취소").toggleClass("btn-warning btn-info");
+
+
+} else {
+// 좋아요가 새로 눌린 경우
+// 좋아요 버튼 -> 좋아요 취소 버튼
+
+alert("좋아요가 설정되었습니다.");
+$('.like').text("좋아요").toggleClass("btn-info btn-warning");
+
+
+}

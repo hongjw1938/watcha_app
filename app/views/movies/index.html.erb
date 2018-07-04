@@ -1,0 +1,130 @@
+
+<h1 id="title">Movies</h1>
+<div id="title" class="row">
+<% @movies.each do |movie| %>
+
+<div class="card col-md-3">
+  <img class="card-img-top" src="<%= movie.image_path.thumb.url %>" alt="<%= movie.title %>">
+  <div class="card-body">
+    <h5 class="card-title" data-d="3" abc="ddeeff"><span><%= movie.title %></span></h5>
+    <p class="card-text">장르: <%= movie.genre %></p>
+    <p class="card-text">주연배우: <%= movie.actors %></p>
+    <p class="card-text">감독: <%= movie.director %></p>
+
+    <%= link_to '영화 정보보기', movie_path(movie), class: 'btn btn-primary' %>
+  </div>
+</div>
+
+<% end %>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @movies.each do |movie| %>
+      <tr>
+        <td><%= link_to 'Show', movie %></td>
+        <td><%= link_to 'Edit', edit_movie_path(movie) %></td>
+        <td><%= link_to 'Destroy', movie, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Movie', new_movie_path %>
+
+<hr>
+
+<% if user_signed_in? %>
+  <!-- 로그인이 된 상태 -->
+  <%= current_user.email %>
+  <%= link_to '로그아웃', destroy_user_session_path, method: "delete" %>
+<% else %>
+  <!-- 로그아웃 된 상태 -->
+  <%= link_to '로그인하기', new_user_session_path %>
+<% end %>
+
+
+<textarea id="input" placeholder="변환할 텍스트를 입력해주세요.">
+  
+</textarea>
+<button class="translate">바꿔줘</button>
+<h3 class="haha"></h3>
+
+<script type="text/javascript">
+  var btn = $('.translate');
+  var input_value;
+  btn.on("click", function(){
+    input_value = $('#input').val();
+    //console.log(input_value);
+    
+    var array1;
+    var ch_array = [];
+    var s = input_value.split("");
+    //console.log(s);
+    
+    for (i = 0; i < s.length; i++) {
+      if(Hangul.isComplete(s[i])){
+        array1 = Hangul.disassemble(s[i], true);
+        console.log("array1" + array1);
+        
+        if(Hangul.endsWithConsonant(s[i])){
+          for(j = 0; j < array1[0].length; j++){
+          //console.log(Hangul.isVowel(array1[j]))
+          
+            if(Hangul.isVowel(array1[0][j-1]) && Hangul.isVowel(array1[0][j]) && Hangul.isConsonant(array1[0][j+1])){
+              ch_array.push(array1[0][j+1]);
+              ch_array.push(array1[0][j]);
+              j++;
+            } else {
+              ch_array.push(array1[0][j]);
+            }
+          
+          }
+        } else {
+          for(j = 0; j < array1[0].length; j++){
+            ch_array.push(array1[0][j]);
+          }
+        }  
+      //console.log(Hangul.assemble(ch_array));  
+    }
+      
+      
+      $('.haha').text(Hangul.assemble(ch_array));
+    }
+  });
+    
+  
+    
+</script>
+
+
+<script>
+  // func1();
+  // func2();
+  // var func1 = function(){
+  //   alert("ㅎ2ㅎ2");
+  // }
+  
+  // function func2(){
+  //   alert("ㅎㅎㅎㅎㅎ")
+  // }
+  
+  // var btn = document.getElementsByClassName("btn")[0];
+  // btn.addEventListener("mouseover", func2); 
+  
+  // var btn2 = document.getElementsByClassName("btn")[1];
+  // btn2.onmouseover = func1;
+  
+  // var btn = document.getElementsByClassName("btn");
+  // var title;
+  // var original;
+  //console.dir(btn);
+
+</script>

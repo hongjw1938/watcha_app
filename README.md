@@ -52,3 +52,46 @@
                     });
                 </script>
             </code></pre>
+        * String interpolation
+            - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals">참조</a>
+            - like_movie.js.erb파일에 사용
+    - 댓글
+        * cf) html에서 태그에 data-id라는 방식으로 속성을 주면 data-* 에 의해서 데이터 method를 사용가능하다.
+            - <a href="https://www.w3schools.com/tags/att_global_data.asp">참조</a>
+        * 기능
+            - form(요소)이 제출(이벤트)될 때(이벤트 리스너), input(요소)안의 내용물(요소)을 받아서 ajax요청으로 서버에 요청
+            - 보낼 때에는 내용물, 현재 보고있는 movie의 id 값도 같이 보낸다.
+            - 서버에서 저장하고, response 보내줄 js.erb 파일을 작성
+            - 댓글에 있는 삭제 버튼(요소)를 누르면(이벤트 리스너) 해당 댓글이 눈에 안보이며(이벤트 핸들러), 실제 db에서도 삭제된다.
+                > 문제는, ajax로 댓글을 새로 작성시에 dom트리를 새로 그리지 않기 때문에 해당 댓글은 즉각적인 삭제가 안된다.
+                
+                > 따라서, `$(document).on('click', 'destroy-comment', function(){});` 와 같이 추가하여 리소스를 잡아먹더라도 돔 트리를 다시 그리도록 만들어야 한다.
+            
+            * 수정
+                - 수정 버튼을 클릭시에, 댓글이 있던 부분이 입력창으로 바뀌면서 원 댓글의 내용이 입력창에 들어간다.
+                - 수정 버튼은 수정 완료 확인버튼으로 바뀐다.
+                - 내용 수정 후 확인 버튼을 클릭하면 입력창이 댓글의 원래 형태로 바뀐다.
+                - 확인버튼은 다시 수정버튼으로 변경된다.
+                - 입력창에 있던 내용물을 ajax로 서버에 요청보내고 서버에서는 해당 댓글을 찾아 내용을 업데이트 한다.
+                - 전체 문서에서 update-comment 클래스를 가진 버튼이 있다면 더이상 진행하지 않고 이벤트 핸들러를 종료함.(`return`)
+        * nested routing(<a href="http://guides.rubyonrails.org/routing.html#nested-resources">nested resources</a>)
+            - resources안에 또 다시 route를 지정할 수 있다.
+            - member / collection
+                - member를 사용할 경우 :id 부분에 자동으로 세팅됨.
+                - <pre><code>
+                    resources :movies do
+                        member do
+                          post '/comments' => 'movies#create_comment'
+                          # post '/likes/:movie_id/comments' => 'movies#create_comment' 와 같다.
+                        end
+                        
+                        # collection do
+                        #   get '/test' => 'movies#test'
+                        # end
+                    end
+                </code></pre>
+        * model
+            - `rails g model comment user_id movie_id contents` : user_id와 movie_id는 양 쪽에 종속되기 때문
+        * controller
+            - create_comment action에서 comment를 생성한다.
+        * 

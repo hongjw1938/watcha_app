@@ -90,8 +90,20 @@
                         # end
                     end
                 </code></pre>
-        * model
-            - `rails g model comment user_id movie_id contents` : user_id와 movie_id는 양 쪽에 종속되기 때문
+    - Ajax검색 기능
+        - 구현
+            - keyup event를 통해 `input` 태그에 제목을 입력하면 관련 title을 반환한다.
+            - ajax를 통해서 `input` 태그의 class를 찾고 parameter로 해당 내용을 서버로 요청한다.
+            - controller에서는 `search_movie` action으로 해당 내용을 찾는다.
+            * `search_movie` action
+                - 빈 내용을 전달시에는 아무것도 찾을 필요가 없으므로 `empty?`메소드를 통해서 `render nothing: true`를 수행한다.
+                - 만약 내용을 전달했을 때에는, `Movie.where("title LIKE ?", "#{params[:q]}%")`를 통해 관련 내용을 검색한다.
+    - pagination(kaminari gem)
+        - <a href="https://github.com/kaminari/kaminari">참조</a>
+        - 간단히 사용할 수 있으며, `bundle install`만 하면 바로 paging 기능을 구현할 수 있다.
+        * model(rb파일)
+            - *movie.rb*에서는 `paginates_per 숫자`를 통해서 페이지마다 얼마나 보여줄지 pagination을 할 수 있다.
         * controller
-            - create_comment action에서 comment를 생성한다.
-        * 
+            - 컨트롤러에서는 `@movies = Movie.page(params[:page])` 통해서 page를 이용토록 구현한다.
+        * view
+            - `<%= paginate @movies, theme: 'twitter-bootstrap-4' %>` 이와 같이 특정 객체에 따라 얼마나 paging할지 보여줄 수 있으며, theme도 구현할 수 있다.(bootstrap4-kaminari-views gem 필요)

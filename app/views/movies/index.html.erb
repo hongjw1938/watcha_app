@@ -1,5 +1,9 @@
 
 <h1 id="title">Movies</h1>
+<input type="text" class="form-control movie-title">
+<div class="recomm-movie d-flex justify-content-start row">
+  
+</div>
 <div id="title" class="row">
 <% @movies.each do |movie| %>
 
@@ -16,6 +20,8 @@
 </div>
 
 <% end %>
+<%= paginate @movies, theme: 'twitter-bootstrap-4' %>
+
 </div>
 <table>
   <thead>
@@ -104,6 +110,22 @@
     
 </script>
 
+
+<script>
+  $(document).on('ready', function(){
+    $('.movie-title').on('keyup', function(){
+      var title = $(this).val();
+      $('.recomm-movie').html('');
+      $.ajax({
+        url: '/movies/search_movie',
+        data: {
+          q: title
+        }
+      })
+    });
+  });
+  
+</script>
 
 <script>
   // func1();

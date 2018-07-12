@@ -125,6 +125,11 @@ class MoviesController < ApplicationController
     
   end
   
+  def upload_image
+    @image = Image.create(image_path: params[:upload][:image])
+    render json: @image
+  end
+  
   
   private
     # Use callbacks to share common setup or constraints between actions.

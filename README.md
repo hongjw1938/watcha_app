@@ -107,3 +107,48 @@
             - 컨트롤러에서는 `@movies = Movie.page(params[:page])` 통해서 page를 이용토록 구현한다.
         * view
             - `<%= paginate @movies, theme: 'twitter-bootstrap-4' %>` 이와 같이 특정 객체에 따라 얼마나 paging할지 보여줄 수 있으며, theme도 구현할 수 있다.(bootstrap4-kaminari-views gem 필요)
+* summernote 사용(wysiwyg)
+    - <a href="https://github.com/summernote/summernote-rails">documenttation</a>
+    - 설치 및 import
+        - `gem 'summernote-rails', '~> 0.8.10.0'`
+            > 이외 bootstrap등은 버젼을 맞추어서 받을 것.
+        - stylesheets & javascript
+            - `@import 'summernote-bs4'`
+            - `//= require summernote/summernote-bs4.min`
+            - js2coffee를 통해서 coffee script를 js로 변환 후 *summernote-init.js*를 만들고 저장한다.
+                > turbolink말고 ready로 코드 변경. 
+
+            - `//= require summernote-init`를 통해 import
+    * view
+        - form을 통해 사용한다. 따라서 *_form.html.erb*를 변경한다.
+            > `<%= f.text_area :description, 'data-provider': :summernote %>` 와 같이 지정
+            
+            > 참고로 text_area로 사용해야함.
+        
+        - 바로 editor를 사용할 수 있다. image도 바로 drag and drop이 가능하나 실제 코드를 보면 매우 복잡하다. 따라서 이를 조정해야 한다.
+    * image upload to server
+        - <a href="https://github.com/summernote/summernote-rails/wiki/Image-File-Upload-to-Server">documentation</a>
+        - documentation에서 image upload coffee 코드를 js코드로 변환하여 필요한 부분을 summernote-init.js에 추가한다.
+            - 해당 코드를 잘 살펴보고, 그에 관한 route 및 controller action을 지정해야 한다.
+        - image를 저장하는 model 만들기
+            - `rails g model images image_path`
+        - image uploader 생성
+            - `rails g uploader summernote`
+                > carrierwave가 설치되어 있어야 한다.
+            
+            - mount
+                - Image.rb : `mount_uploader :image_path, SummernoteUploader`
+        - ajax로 데이터를 받아오면 해당 내용이 html tag형태로 보여질 것이다.
+        - simple_format을 이용하여 text를 html 형식으로 변환시켜주면 된다.
+            - `<p><%= simple_format(@movie.description) %></p>`
+    * simple_format
+        - <a href="https://apidock.com/rails/ActionView/Helpers/TextHelper/simple_format">documentation</a>
+* 관리자 페이지(rails admin)
+    * 참조
+        - <a href="https://github.com/sferik/rails_admin">documentation</a>
+    * 설치
+        - `gem 'rails_admin'`
+        - `rails g rails_admin:install`
+            > prompt가 나옴. admin을 어느 경로로 지정할 것인지.
+        
+    * 서버실행

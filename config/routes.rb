@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  mount RailsAdmin::Engine => '/ahctaw', as: 'rails_admin'
   devise_for :users
   root 'movies#index'
   resources :movies do
@@ -13,6 +14,8 @@ Rails.application.routes.draw do
       get '/search_movie' => 'movies#search_movie'
     end
   end
+  
+  post '/uploads' => 'movies#upload_image'
   
   get '/likes/:movie_id' => 'movies#like_movie'
   

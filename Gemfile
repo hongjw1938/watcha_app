@@ -5,6 +5,12 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+# rails admin
+gem 'rails_admin'
+
+# summernote(wysiwyg editor)
+gem 'summernote-rails', '~> 0.8.10.0'
+
 # pagination
 gem 'kaminari'
 gem 'bootstrap4-kaminari-views'

@@ -152,3 +152,114 @@
             > prompt가 나옴. admin을 어느 경로로 지정할 것인지.
         
     * 서버실행
+* Social login
+    - Oauth란?
+        - 기본적으로 우리 app을 API로 인증시키는 방식임
+        - <a href="https://minwan1.github.io/2018/02/24/2018-02-24-OAuth/#oauth1">참조</a>
+    - google login github documentation <a href="https://github.com/zquestz/omniauth-google-oauth2">참조</a>
+    * google login 구현하기
+        1. API 키 발급
+            - <a href"https://console.developers.google.com/apis/dashboard?project=groovy-electron-210101&duration=PT1H">키 발급</a>
+            - 해당 웹사이트에서 프로젝트를 생성하고 선택한다.
+            - 좌측 sidebar의 credentials를 클릭하여 Oauth consent screen에서 client키를 받기 위해 save
+            - 받은 client ID와 key를 저장한다.
+        2. 필요 gem 설치
+            - figaro와 OmniAuth설치
+                - <pre>code> # omniauth
+                  gem 'omniauth-google-oauth2' : redirect uri를 자동으로 설정해준다
+                  gem 'figaro'
+                </code></pre>
+            - `$figaro install`
+            - application.yml
+                - client ID와 secret ID를 발급받은 것을 설정해놓는다.
+        3. Users db에 column추가(custom column)
+            - 필요한 column을 추가하기 위해 command에서 아래를 작성
+                > `rails g migration add_coloumns_to_users`
+                
+            - devise로 작성한 기존의 db는 자동으로 설정되는 것이 많으므로 굳이 건드리지 않는다.
+            - 새로만든 곳에 아래와 같이 추가한다.
+                - <pre><code>  def change
+                        # add_column :DB명, :컬럼명, :타입
+                        add_column :users, :provider,   :string
+                        add_column :users, :name,       :string
+                        add_column :users, :uid,        :string
+                    end
+                    </code></pre>
+        4. config지정
+            - initializers/devise.rb파일에 아래 내용을 추가
+                - <pre><code>
+                        config.omniauth :google_oauth2, ENV['GOOGLE_CLIENT_ID'], ENV['GOOGLE_CLIENT_SECRET'], {}
+                          {
+                            scope: 'email',
+                            prompt: 'select_account'
+                          }
+                </code></pre>
+        5. route지정
+            - 기존에 `devise_for`로 되어 있던 부분의 뒤에 아래 내용 추가
+            - `controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }`
+        6. user.rb 수정
+            - `:omniauthable, omniauth_providers: [:google_oauth2]`
+            - 위 코드를 추가한다.
+        7. 승인된 uri 추가
+            - 위 상태로 서버를 실행하고 login을 시도하면 error가 난다.
+            - uri를 승인시키기 위해 callback 부분까지 복사하여 client ID 및 key를 받은 사이트에서 내용을 수정하여 승인된 redirection URI에 추가한다.
+    * kakao login
+        - 카카오의 경우 gem file이 없으므로 controller 및 routing까지 지정해야 한다.
+        1. <a href="https://developers.kakao.com">developers.kakao.com</a>로 이동하여 로그인 후 앱을 만든다.
+            - 좌측 사이드바에서 사용자관리 탭을 통해 사용자관리를 활성화하고 어떤 정보를 수집할지 선택해야 한다.
+            - 일반 탭에서 플랫폼을 추가하고 domain을 넣는다.
+            - Redirect Path를 지정하고 해당 Path를 routh에 지정하여 controller에서 method가 수행될 수 있도록 지정한다.
+        2. 로그인 구현
+            - <a href="https://developers.kakao.com/docs/restapi/user-management#%EB%A1%9C%EA%B7%B8%EC%9D%B8">참조</a>
+            - 해당 내용과 같이 지정하여 2번의 요청이 필요함.
+            - request Token을 통해 도메인 인증을 받은 다음, access_token을 받아서 사용자 정보를 재요청한다.
+        3. 모델코딩
+            - 받아온 사용자 정보는 *user.rb*에 메소드를 만들고 저장한다.
+            - 만약 email정보를 받아오지 못하는 경우 email을 랜덤하게 만들어서 사용자 정보를 저장할 수 있도록 한다.
+* devise
+    - controller 만들기
+        - `rails g devise:controllers 모델명`(generally users)
+        - 각 컨트롤러
+            - confirmation : 
+            - omniauth_callbacks : 외부 omniauth        
+            - passwords : 패스워드 reset시에 token과 관련
+            - registations : 회원가입과 관련(custom column으로 추가적 정보 받을 시 수정해야함)
+            - sessions : 로그인과 관련
+            - unlocks : 계정 잠금과 관련
+        - 기존에 controller를 만들지 않아도 사용할 수 있었던 이유는 부모 controller가 devise내에 존재했기 때문임
+        - social 로그인 구현을 위해 코드 작성
+            - omniauth_callbacks_controllers.rb에 다음 내용 추가
+                - <pre><code>
+                  def google_oauth2
+                      # You need to implement the method below in your model (e.g. app/models/user.rb)
+                      p request.env['omniauth.auth']
+                      @user = User.from_omniauth(request.env['omniauth.auth'])
+                
+                      if @user.persisted?
+                        flash[:notice] = I18n.t 'devise.omniauth_callbacks.success', kind: 'Google'
+                        sign_in_and_redirect @user, event: :authentication
+                      else
+                        session['devise.google_data'] = request.env['omniauth.auth'].except(:extra) # Removing extra as it can overflow some session stores
+                        redirect_to new_user_registration_url, alert: @user.errors.full_messages.join("\n")
+                      end
+                  end
+                </code</pre>
+            - user.rb에 다음 추가
+                 - <pre><code>
+                    def self.from_omniauth(access_token)
+                        data = access_token.info
+                        user = User.where(email: data['email']).first
+                    
+                        # Uncomment the section below if you want users to be created if they don't exist
+                        # unless user
+                        #     user = User.create(name: data['name'],
+                        #        email: data['email'],
+                        #        password: Devise.friendly_token[0,20]
+                        #     )
+                        # end
+                        user
+                    end
+                 </code></pre>
+    * view
+        - 생성
+            -  `rails g devise:views`

@@ -5,6 +5,12 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+# omniauth
+gem 'omniauth-google-oauth2'
+gem 'figaro'
+
+gem 'rest-client'
+
 # rails admin
 gem 'rails_admin'
 

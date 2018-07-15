@@ -216,6 +216,10 @@
         3. 모델코딩
             - 받아온 사용자 정보는 *user.rb*에 메소드를 만들고 저장한다.
             - 만약 email정보를 받아오지 못하는 경우 email을 랜덤하게 만들어서 사용자 정보를 저장할 수 있도록 한다.
+    * naver login
+        - 카카오와 동일함
+        - 다만, state코드를 발송하여 해당 state를 callback으로 받았을 때, 해당 내용이 일치해야함.
+        - 일치하지 않는 경우, 위조 공격의 우려가 있을 수 있으므로, redirect시키는 방식으로 구현함.
 * devise
     - controller 만들기
         - `rails g devise:controllers 모델명`(generally users)

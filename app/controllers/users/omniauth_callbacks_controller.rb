@@ -48,6 +48,8 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     info_url = "https://kapi.kakao.com/v2/user/me"
     info_response = RestClient.get(info_url,
                                     Authorization: "Bearer #{access_token}")
+                                    
+    puts JSON.parse(info_response)
     @user = User.from_omniauth_kakao(JSON.parse(info_response))
     
     if @user.persisted?

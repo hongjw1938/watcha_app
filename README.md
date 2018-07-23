@@ -108,7 +108,7 @@
         * view
             - `<%= paginate @movies, theme: 'twitter-bootstrap-4' %>` 이와 같이 특정 객체에 따라 얼마나 paging할지 보여줄 수 있으며, theme도 구현할 수 있다.(bootstrap4-kaminari-views gem 필요)
 * summernote 사용(wysiwyg)
-    - <a href="https://github.com/summernote/summernote-rails">documenttation</a>
+    - <a href="https://github.com/summernote/summernote-rails">documentation</a>
     - 설치 및 import
         - `gem 'summernote-rails', '~> 0.8.10.0'`
             > 이외 bootstrap등은 버젼을 맞추어서 받을 것.
